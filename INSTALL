@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+php init
+composer update
+php yii migrate
