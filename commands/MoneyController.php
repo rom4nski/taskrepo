@@ -23,7 +23,7 @@ class MoneyController extends Controller
 			foreach ($models as $model) {
 				if ($model->value == 0) continue;
 				Prize::doMoneyTransfer($model->user_id, $model->value);
-				Console::output("\tuser [{$model->user_id}] " . '$' . "{$model->value} transfered.\n");
+				Console::output("\tuser [{$model->user_id}] {$model->value} euro transfered.\n");
 				$model->delete();
 			}
         }
