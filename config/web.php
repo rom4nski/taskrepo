@@ -51,6 +51,7 @@ $config = [
 			'rules' => [
 				'/' => 'site/index',
 				'/<action:(login|signup|error|captcha|logout)>' => 'site/<action>',
+				'<controller>/<action>' => '<controller>/<action>',
 			],
 		],
 	],

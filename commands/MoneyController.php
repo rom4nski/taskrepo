@@ -10,21 +10,22 @@ use app\models\Prize;
 
 class MoneyController extends Controller
 {
-    public function actionSend($batch = 5)
+    public function actionBankTransfer($batch = 5)
     {
 		$query = Prize::find()->where(['type' => Prize::TYPE_MONEY, 'refused' => 0]);
 		if ($query->count() == 0) {
-			Console::output("\n\tNo money to send.\n");
+			Console::output("\n\tNo money to transfer.\n");
 			return ExitCode::OK;
 		}
 		
-		$i = 1;
-		foreach ($query->batch($batch) as $models) {
-			Console::output("\n\tprocessing {$i}th batch [" . count($models) . "] users...\n");
+		foreach ($query->batch($batch) as $key => $models) {
+			Console::output("\n\tprocessing " . ++$key . "th batch [" . count($models) . "] users...\n");
 			foreach ($models as $model) {
+				if ($model->value == 0) continue;
+				Prize::doMoneyTransfer($model->user_id, $model->value);
 				Console::output("\tuser [{$model->user_id}] " . '$' . "{$model->value} transfered.\n");
+				$model->delete();
 			}
-			$i++;
         }
 
         return ExitCode::OK;

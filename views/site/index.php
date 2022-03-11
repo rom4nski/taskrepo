@@ -55,7 +55,8 @@ $this->title = 'Home';
 									return $model->type == Prize::TYPE_MONEY ? Html::a('convert', $url) : null;
 								},
 								'transfer' => function ($url, $model, $key) {
-									return $model->type != Prize::TYPE_THING ? Html::a('transfer', $url) : null;
+									$name = $model->type == Prize::TYPE_THING ? 'send me' : 'transfer';
+									return Html::a($name, $url);
 								},
 							],
 						],

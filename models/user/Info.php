@@ -3,15 +3,13 @@
 namespace app\models\user;
 
 use Yii;
-use app\models\User;
-use yii\behaviors\BlameableBehavior;
-use yii\helpers\ArrayHelper;
 
 
 
 class Info extends \yii\db\ActiveRecord
 {
 	const KEY_LOYALTY_BONUS = 'loyalty_bonus';
+	const KEY_BANK_ACCOUNT = 'bank_account';
 
 
 	public static function tableName()
@@ -24,6 +22,7 @@ class Info extends \yii\db\ActiveRecord
 		$info = self::findOne(['user_id' => Yii::$app->user->id, 'key' => self::KEY_LOYALTY_BONUS]);
 		if (!$info) {
 			$info = new Info();
+			$info->user_id = Yii::$app->user->id;
 			$info->key = self::KEY_LOYALTY_BONUS;
 			$info->value = $value;
 		} else {
@@ -32,17 +31,6 @@ class Info extends \yii\db\ActiveRecord
 		}
 		$info->save();
     }
-	
-	public function behaviors()
-	{
-		return [
-			[
-				'class' => BlameableBehavior::class,
-				'createdByAttribute' => 'user_id',
-				'updatedByAttribute' => false,
-			],
-		];
-	}
 
     public function rules()
     {

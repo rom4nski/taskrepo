@@ -45,9 +45,24 @@ class Prize extends \yii\db\ActiveRecord
         return 'prize';
     }
 	
-	public static function doMoneyTransfer($value)
+	public static function doMoneyTransfer($userId, $moneyAmount)
     {
+		$host = Yii::$app->id == 'basic-console' ? 'http://slotegrator.task' : Yii::$app->request->hostInfo;
 		
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, "{$host}/money/bank-transfer");
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, ['user' => $userId, 'amount' => $moneyAmount]);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		$resp = curl_exec($ch);
+		$err = curl_error($ch);
+		curl_close($ch);
+
+		return $resp !== false ? $resp : $err;
     }
 	
 	public function behaviors()
@@ -64,7 +79,7 @@ class Prize extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'refused'], 'integer'],
+            [['user_id', 'refused', 'send'], 'integer'],
 			['type', 'string'],
 			['value', 'safe'],
         ];

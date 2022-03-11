@@ -18,6 +18,7 @@ class m220310_100415_create_prize_table extends Migration
 			'type' => $this->string(),
 			'value' => $this->string(),
 			'refused' => $this->tinyInteger(1)->defaultValue(0),
+			'send' => $this->tinyInteger(1)->defaultValue(0),
         ]);
     }
 

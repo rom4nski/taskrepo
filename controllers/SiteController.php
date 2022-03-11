@@ -5,7 +5,6 @@ namespace app\controllers;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\form\LoginForm;
 use app\models\form\SignupForm;
@@ -126,6 +125,8 @@ class SiteController extends Controller
 		$model = $this->findModel($id);
 		$model->refused = 1;
 		$model->save();
+		
+		Yii::$app->session->setFlash('info', "{$model->type} prize has been refused.");
 
         return $this->redirect('/');
     }
@@ -134,10 +135,20 @@ class SiteController extends Controller
     {
 		$model = $this->findModel($id);
 		if ($model->type == Prize::TYPE_MONEY) {
-			Prize::doMoneyTransfer($model->value);
-		} else {
+			Prize::doMoneyTransfer($model->user_id, $model->value);
+			$unit = 'euro'; $acc = 'bank';
+		} else if ($model->type == Prize::TYPE_BONUS) {
 			Info::doBonusTransfer($model->value);
+			$unit = 'points'; $acc = 'loyalty';
+		} else {
+			$model->refused = 1;
+			$model->send = 1;
+			$model->save();
+			Yii::$app->session->setFlash('success', "we will send {$model->value} to you by post.");
+			return $this->redirect('/');
 		}
+		
+		Yii::$app->session->setFlash('success', "{$model->value} {$unit} transfered to your {$acc} account.");
 		
         $model->delete();
         return $this->redirect('/');
@@ -147,8 +158,11 @@ class SiteController extends Controller
     {
         $model = $this->findModel($id);
 		$model->type = Prize::TYPE_BONUS;
-		$model->value = $model->value / Prize::LOYALTY_COEFF;
+		$value = $model->value;
+		$model->value = $value / Prize::LOYALTY_COEFF;
 		$model->save();
+		
+		Yii::$app->session->setFlash('success', "{$value} euros converted to {$model->value} loyalty bonus.");
 		
         return $this->redirect('/');
     }
